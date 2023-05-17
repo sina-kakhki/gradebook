@@ -1,0 +1,6 @@
+<!-- Display the list of students -->
+<ul>
+  {% for student in students %}
+    <li>{{ student.studentID }} - {{ student.firstName }} {{ student.lastName }}</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,6 @@
+<!-- Display the list of student enrollments -->
+<ul>
+  {% for enrollment in enrollments %}
+    <li>{{ enrollment.studentID }} - {{ enrollment.classID }} - {{ enrollment.grade }}</li>
+  {% endfor %}
+</ul>

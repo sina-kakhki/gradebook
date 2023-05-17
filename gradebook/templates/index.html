@@ -1,0 +1,26 @@
+<!-- index.html -->
+{% if user.is_authenticated %}
+  <!-- User is logged in -->
+  <h1>Welcome, {{ user.username }}!</h1>
+  <p>You are logged in to the Gradebook app.</p>
+  <p>Choose an option:</p>
+  <ul>
+    <li><a href="{% url 'logout' %}">Logout</a></li>
+    <li><a href="{% url 'view_courses' %}">View Courses</a></li>
+    <li><a href="{% url 'view_classes' %}">View Classes</a></li>
+    <li><a href="{% url 'view_lecturers' %}">View Lecturers</a></li>
+    <li><a href="{% url 'view_students' %}">View Students</a></li>
+    <li><a href="{% url 'enroll_student' %}">Enroll Student</a></li>
+    <li><a href="{% url 'upload_students' %}">Upload Students</a></li>
+    <li><a href="{% url 'email_students' %}">Email Students</a></li>
+  </ul>
+{% else %}
+  <!-- User is not logged in -->
+  <h1>Welcome to Gradebook!</h1>
+  <p>This is the homepage of the Gradebook app.</p>
+  <p>Please log in to access the features:</p>
+  <ul>
+    <li><a href="{% url 'login_lecturer' %}">Lecturer Login</a></li>
+    <li><a href="{% url 'login_student' %}">Student Login</a></li>
+  </ul>
+{% endif %}

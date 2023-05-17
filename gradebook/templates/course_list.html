@@ -1,0 +1,6 @@
+<!-- Display the list of courses -->
+<ul>
+  {% for course in courses %}
+    <li>{{ course.code }} - {{ course.name }}</li>
+  {% endfor %}
+</ul>
