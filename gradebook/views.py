@@ -1,8 +1,13 @@
+import openpyxl
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from django.forms import forms
+from django.contrib.auth import logout, authenticate, login
+from django.http import HttpResponseNotFound
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
 
-from gradebook.forms import SemesterForm, CourseForm, ClassForm, LecturerForm, StudentForm, StudentEnrollmentForm
+from gradebook.forms import SemesterForm, CourseForm, ClassForm, LecturerForm, StudentForm, StudentEnrollmentForm, \
+    DeleteSemesterForm, AssignClassForm
 from gradebook.models import *
 
 
@@ -277,10 +282,6 @@ def student_enrollment_list(request, student_pk):
 
 
 # Login and Logout views
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
-
-
 def login_lecturer(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -318,10 +319,6 @@ def logout_view(request):
     return redirect('index')
 
 
-class AssignClassForm(forms.Form):
-    lecturer = forms.ModelChoiceField(queryset=Lecturer.objects.all(), empty_label=None, label='Select Lecturer')
-
-
 def assign_class(request, lecturer_id):
     lecturer = get_object_or_404(Lecturer, id=lecturer_id)
     if request.method == 'POST':
@@ -339,17 +336,21 @@ def assign_class(request, lecturer_id):
     return render(request, 'assign_class.html', context)
 
 
-def index(request):
-    if request.user.is_authenticated:
-        # User is logged in
-        context = {
-            'user': request.user,
-        }
-    else:
-        # User is not logged in
-        context = {}
+# def index(request):
+#     if request.user.is_authenticated:
+#         # User is logged in
+#         context = {
+#             'user': request.user,
+#         }
+#     else:
+#         # User is not logged in
+#         context = {}
+#
+#     return render(request, 'index.html', context)
 
-    return render(request, 'index.html', context)
+
+class home(ListView):
+    template_name = 'index.html'
 
 
 def create_semester(request):
@@ -385,3 +386,264 @@ def update_semester(request, semester_id):
 
     context = {'form': form, 'semester': semester}
     return render(request, 'update_semester.html', context)
+
+
+def delete_semester(request, semester_id):
+    semester = Semester.objects.get(id=semester_id)
+
+    if request.method == 'POST':
+        form = DeleteSemesterForm(request.POST, instance=semester)
+        if form.is_valid():
+            semester.delete()
+            return redirect('semester_list')
+    else:
+        form = DeleteSemesterForm(instance=semester)
+
+    context = {
+        'semester': semester,
+        'form': form,
+    }
+    return render(request, 'delete_semester.html', context)
+
+
+def view_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    return render(request, 'course_detail.html', {'course': course})
+
+
+def create_course(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('course_list')
+    else:
+        form = CourseForm()
+    return render(request, 'course_form.html', {'form': form})
+
+
+def update_course(request, pk):
+    course = Course.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect('course_list')
+    else:
+        form = CourseForm(instance=course)
+    return render(request, 'course_form.html', {'form': form})
+
+
+def delete_course(request, pk):
+    course = Course.objects.get(pk=pk)
+    if request.method == 'POST':
+        course.delete()
+        return redirect('course_list')
+    return render(request, 'delete_course.html', {'course': course})
+
+
+def create_class(request):
+    if request.method == 'POST':
+        form = ClassForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('class_list')
+    else:
+        form = ClassForm()
+    return render(request, 'create_class.html', {'form': form})
+
+
+def view_class(request, class_id):
+    class_obj = get_object_or_404(Class, id=class_id)
+    return render(request, 'view_class.html', {'class_obj': class_obj})
+
+
+def update_class(request, class_id):
+    _class = get_object_or_404(Class, pk=class_id)
+
+    if request.method == 'POST':
+        form = ClassForm(request.POST, instance=_class)
+        if form.is_valid():
+            form.save()
+            return redirect('view_class', class_id=class_id)
+    else:
+        form = ClassForm(instance=_class)
+
+    context = {
+        'form': form,
+        'class_id': class_id
+    }
+    return render(request, 'update_class.html', context)
+
+
+def delete_class(request, class_id):
+    _class = get_object_or_404(Class, pk=class_id)
+
+    if request.method == 'POST':
+        _class.delete()
+        messages.success(request, 'Class deleted successfully.')
+        return redirect('index')
+
+    context = {
+        'class': _class
+    }
+    return render(request, 'delete_class.html', context)
+
+
+def create_lecturer(request):
+    if request.method == 'POST':
+        form = LecturerForm(request.POST)
+        if form.is_valid():
+            lecturer = form.save()
+            return redirect('lecturer_detail', pk=lecturer.pk)
+    else:
+        form = LecturerForm()
+    return render(request, 'lecturer_form.html', {'form': form})
+
+
+def view_lecturer(request, lecturer_id):
+    # Retrieve the lecturer object from the database
+    lecturer = get_object_or_404(Lecturer, id=lecturer_id)
+
+    context = {
+        'lecturer': lecturer
+    }
+
+    return render(request, 'lecturer_detail.html', context)
+
+
+def update_lecturer(request, lecturer_id):
+    lecturer = get_object_or_404(Lecturer, id=lecturer_id)
+    if request.method == 'POST':
+        form = LecturerForm(request.POST, instance=lecturer)
+        if form.is_valid():
+            form.save()
+            return redirect('lecturer_detail', lecturer_id=lecturer_id)
+    else:
+        form = LecturerForm(instance=lecturer)
+
+    return render(request, 'lecturer_form.html', {'form': form})
+
+
+def delete_lecturer(request, lecturer_id):
+    lecturer = get_object_or_404(Lecturer, pk=lecturer_id)
+
+    if request.method == 'POST':
+        lecturer.delete()
+        return redirect('lecturer_list')
+
+    return render(request, 'delete_lecturer.html', {'lecturer': lecturer})
+
+
+def create_student(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm()
+
+    return render(request, 'student_form.html', {'form': form})
+
+
+def view_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    return render(request, 'student_detail.html', {'student': student})
+
+
+def update_student(request, student_id):
+    student = Student.get_student(student_id)
+    if not student:
+        return HttpResponseNotFound("Student not found.")
+
+    form = StudentForm(request.POST or None, instance=student)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('view_student', student_id=student_id)
+
+    return render(request, 'student_form.html', {'form': form, 'edit_mode': True})
+
+
+def delete_student(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+
+    if request.method == 'POST':
+        student.delete()
+        return redirect('student_list')
+
+    return render(request, 'delete_student.html', {'student': student})
+
+
+def view_student_enrollment(request, pk):
+    enrollment = StudentEnrollment.objects.get(pk=pk)
+    return render(request, 'view_student_enrollment.html', {'enrollment': enrollment})
+
+
+def update_student_enrollment(request, pk):
+    enrollment = get_object_or_404(StudentEnrollment, pk=pk)
+    form = StudentEnrollmentForm(instance=enrollment)
+
+    if request.method == 'POST':
+        form = StudentEnrollmentForm(request.POST, instance=enrollment)
+        if form.is_valid():
+            form.save()
+            return redirect('view_student_enrollment', pk=pk)
+
+    return render(request, 'update_student_enrollment.html', {'form': form, 'enrollment': enrollment})
+
+
+def delete_student_enrollment(request, pk):
+    enrollment = get_object_or_404(StudentEnrollment, pk=pk)
+
+    if request.method == 'POST':
+        enrollment.delete()
+        return redirect('student_enrollment_list')
+
+    return render(request, 'delete_student_enrollment.html', {'enrollment': enrollment})
+
+
+# def upload_students(request):
+#     if request.method == 'POST':
+#         form = UploadStudentsForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # Get uploaded file
+#             file = form.cleaned_data['file']
+#
+#             # Process the file data
+#             students = process_uploaded_file(file)
+#
+#             # Create student records
+#             for student_data in students:
+#                 student = Student.objects.create(**student_data)
+#
+#             # Redirect to student list
+#             return redirect('student_list')
+#     else:
+#         form = UploadStudentsForm()
+#
+#     return render(request, 'upload_students.html', {'form': form})
+
+
+def process_uploaded_file(file):
+    # Process the uploaded file data (Excel format)
+    # Extract and validate student data from the file
+    # Return a list of dictionaries, each containing student data
+
+    students = []
+    workbook = openpyxl.load_workbook(file)
+    worksheet = workbook.active
+
+    for row in worksheet.iter_rows(min_row=2, values_only=True):
+        student_data = {
+            'student_id': row[0],
+            'first_name': row[1],
+            'last_name': row[2],
+            'email': row[3],
+            'date_of_birth': row[4],
+        }
+        students.append(student_data)
+
+    return students
