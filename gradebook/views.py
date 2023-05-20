@@ -230,6 +230,17 @@ def student_detail(request, pk):
 
 
 @login_required
+def student_grades(request):
+    student_id = request.GET.get('id')
+    student_name = request.GET.get('name')
+
+    enrollment = get_object_or_404(StudentEnrollment, student__id=student_id, student__name=student_name)
+    grades = enrollment.grade.all()
+
+    return render(request, 'student_grade.html', {'enrollment': enrollment, 'grades': grades})
+
+
+@login_required
 def student_update(request, pk):
     student = Student.objects.get(pk=pk)
     if request.method == 'POST':
@@ -284,32 +295,32 @@ def student_enrollment_list(request, student_pk):
 
 
 # Login and Logout views
+# def login_user(request):
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None and user.is_active:
+#             # User will be redirected to homepage with different views
+#             login(request, user)
+#             return redirect('index')
+#         else:
+#             # Invalid credentials or user is inactive
+#             error_message = 'Invalid login credentials'
+#             return render(request, 'registration/login.html', {'error_message': error_message})
+
+
 def login_user(request):
+    error_message = None  # Set default error message to None
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_active:
-            if user.groups.filter(name='admin').exists():
-                # Admin user
-                login(request, user)
-                return redirect('admin_dashboard')
-            elif user.groups.filter(name='student').exists():
-                # Student user
-                login(request, user)
-                return redirect('student_dashboard')
-            elif user.groups.filter(name='lecturer').exists():
-                # Lecturer user
-                login(request, user)
-                return redirect('lecturer_dashboard')
-            else:
-                # User does not belong to any known group
-                error_message = 'Invalid user group'
+            login(request, user)
+            return redirect('index')
         else:
-            # Invalid credentials or user is inactive
             error_message = 'Invalid login credentials'
-    else:
-        error_message = ''
     return render(request, 'registration/login.html', {'error_message': error_message})
 
 
@@ -333,7 +344,6 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
-
 
 
 def assign_class(request, lecturer_id):
@@ -551,11 +561,6 @@ def create_student(request):
     return render(request, 'student_form.html', {'form': form})
 
 
-def view_student(request, student_id):
-    student = get_object_or_404(Student, pk=student_id)
-    return render(request, 'student_detail.html', {'student': student})
-
-
 def update_student(request, student_id):
     student = Student.get_student(student_id)
     if not student:
@@ -653,14 +658,14 @@ def process_uploaded_file(file):
     return students
 
 
-
+@login_required
 def send_marks_email(request):
     # Logic to retrieve the necessary information for sending the email
     # such as the student, marks, email template, etc.
 
     # Compose the email content
     subject = 'Your Marks/Grades'
-    message = 'Here are your marks for the semester: '
+    message = 'Your marks are available, please login to the gradebook to view them '
     from_email = 'sender@example.com'
     recipient_email = 'recipient@example.com'
 
@@ -669,59 +674,3 @@ def send_marks_email(request):
 
     # Redirect to a success page or another appropriate URL
     return redirect('home')
-# @login_required
-# # @user_passes_test(lambda u: u.groups.filter(name='lecturer').exists())
-# def send_email(request, enrolment_id):
-#     """
-#     Send an email to the student
-#     :param request: normal request
-#     :param enrolment_id: the id of the enrolment linked to the enrolled student and assigned lecturer
-#     :return: redirect to the enrolment list page
-#     """
-#     enrolment = get_object_or_404(StudentEnrollment, pk=enrolment_id)
-#     student_email = enrolment.enrolled_student.email
-#     subject = "Your Grade is Available"
-#     message = f"Dear {enrolment.enrolled_student},\n\nYour grade for {enrolment.enrolled_class} is now available. Please log in to the Gradebook to view your grade.\n\nBest regards,\n{enrolment.enrolled_class.lecturer}\nLecturer"
-#     from_email = None  # Uses the default email in settings.py
-#
-#     try:
-#         send_mail(subject, message, from_email, [student_email])
-#         messages.success(request, f"Email sent to {enrolment.enrolled_student}.")
-#     except Exception as e:
-#         messages.error(request, str(e))
-#
-#     return redirect('enrolment_list')
-
-@login_required
-def update_user_info(request):
-    """
-    A view that allows registered users to update their personal information.
-    If the request method is POST, the function creates a UserUpdateForm instance with the data from the request,
-    and checks if it's valid. If the form is valid, it saves the changes to the user's information and redirects
-    the user to the 'home' page.
-    If the request method is GET, the function creates a UserUpdateForm instance with the current user's information,
-    it is used to display the form with the user's current information for the first time the page is loaded.
-    :param request: The HTTP request object.
-    :return: A rendered HTML response containing a UserUpdateForm.
-    """
-    user = request.user
-    if user.groups.filter(name="student").exists():
-        initial_form_class = StudentForm
-    elif user.groups.filter(name="lecturer").exists():
-        initial_form_class = LecturerForm
-    else:
-        initial_form_class = UserUpdateForm
-
-    if request.method == 'POST':
-        form = initial_form_class(request.POST, instance=user)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            group = form.cleaned_data.get('group')
-            if group:
-                user.groups.set([group])  # Set the selected group
-            instance.user = user
-            instance.save()
-            return redirect('home')
-    else:
-        form = initial_form_class(instance=user)
-    return render(request, 'registration/update_user_info.html', {'form': form})

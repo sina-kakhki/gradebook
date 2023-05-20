@@ -11,10 +11,12 @@
     <p>Choose an option:</p>
     <ul>
       <li><a href="{% url 'logout' %}">Logout</a></li>
+      <li><a href="{% url 'semester_list' %}">View Semesters</a></li>
       <li><a href="{% url 'course_list' %}">View Courses</a></li>
       <li><a href="{% url 'class_list' %}">View Classes</a></li>
       <li><a href="{% url 'lecturer_list' %}">View Lecturers</a></li>
       <li><a href="{% url 'student_list' %}">View Students</a></li>
+{#      <li><a href="{% url 'assign_class' %}">Assign Lecturer to a Class</a></li>#}
       <!-- Other admin-specific options -->
     </ul>
   {% elif user.groups.all.0.name == 'student'  %}
@@ -24,7 +26,7 @@
     <p>Choose an option:</p>
     <ul>
       <li><a href="{% url 'logout' %}">Logout</a></li>
-      <li><a href="{% url 'view_grades' %}">View Grades</a></li>
+      <li><a href="{% url 'student_grades' %}">View Grades</a></li>
       <!-- Other student-specific options -->
     </ul>
   {% elif user.groups.all.0.name == 'lecturer' %}
@@ -34,7 +36,7 @@
     <p>Choose an option:</p>
     <ul>
       <li><a href="{% url 'logout' %}">Logout</a></li>
-      <li><a href="{% url 'manage_classes' %}">Manage Classes</a></li>
+      <li><a href="{% url 'student_grades' %}">Add Grades for students</a></li>
       <!-- Other lecturer-specific options -->
     </ul>
   <!-- User has no groups -->

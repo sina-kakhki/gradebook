@@ -37,7 +37,7 @@ urlpatterns = [
     # Student URLs
     path('student/', views.student_list, name='student_list'),
     path('student/create/', views.create_student, name='create_student'),
-    path('student/<int:pk>/', views.view_student, name='view_student'),
+    path('student/<int:pk>/', views.student_detail, name='view_student'),
     path('student/<int:pk>/update/', views.update_student, name='update_student'),
     path('student/<int:pk>/delete/', views.delete_student, name='delete_student'),
     path('student/<int:pk>/enroll/', views.enroll_student, name='enroll_student'),
@@ -49,6 +49,7 @@ urlpatterns = [
     # Other URLs
     path('upload_students/', views.upload_students, name='upload_students'),
     path('send_marks_email/', views.send_marks_email, name='send_marks_email'),
+    path('student/grades/', views.student_grades, name='student_grades'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register, name='register'),
