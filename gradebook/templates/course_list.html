@@ -1,4 +1,5 @@
 <!-- Display the list of courses -->
+{% extends 'base.html' %}
 <ul>
   {% for course in courses %}
     <li>{{ course.code }} - {{ course.name }}</li>

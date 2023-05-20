@@ -38,7 +38,7 @@ class StudentForm(forms.ModelForm):
 class StudentEnrollmentForm(forms.ModelForm):
     class Meta:
         model = StudentEnrollment
-        fields = ['student', 'class_obj', 'grade', 'enrol_time', 'grade_time']
+        exclude = ['enrol_time']
 
 
 class LoginForm(forms.Form):

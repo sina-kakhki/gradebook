@@ -3,7 +3,7 @@ from gradebook import views
 
 urlpatterns = [
     # Index and Home
-    path('', views.home, name='index'),
+    path('', views.HomeView.as_view(), name='index'),
 
     # Semester URLs
     path('semester/', views.semester_list, name='semester_list'),
@@ -47,9 +47,9 @@ urlpatterns = [
     path('student/enrollment/<int:pk>/delete/', views.delete_student_enrollment, name='delete_student_enrollment'),
 
     # Other URLs
-    # path('upload_students/', views.upload_students, name='upload_students'),
-    # path('send_marks_email/', views.send_marks_email, name='send_marks_email'),
-    path('login/lecturer/', views.login_lecturer, name='login_lecturer'),
-    path('login/student/', views.login_student, name='login_student'),
-    # path('logout/', views.logout_user, name='logout'),
+    path('upload_students/', views.upload_students, name='upload_students'),
+    path('send_marks_email/', views.send_marks_email, name='send_marks_email'),
+    path('login/', views.login_user, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('register/', views.register, name='register'),
 ]

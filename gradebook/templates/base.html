@@ -1,5 +1,5 @@
 {% load static %}
-{% load group_tags %}
+{#{% load group_tags %}#}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gradebook App</title>
+    <title>Grade book App</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
@@ -18,42 +18,33 @@
         <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <div class="me-auto">
-                    <a class="nav-link px-12 text-white" href="{% url 'home' %}">GRADEBOOK</a>
+                    <a class="nav-link px-12 text-white" href="{% url 'index' %}">GRADE-BOOK</a>
                 </div>
                 {% if user.is_authenticated %}
                     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 mr-auto">
                         <li class="nav-item mx-5">
-                            <a class="nav-link px-2 text-white mx-3" href="{% url 'semester_list' %}">Semester (Test Purpose)</a>
-                        </li>
-                        <li class="nav-item mx-5">
-                            {% if user|has_group:'lecturer' %}
-                                <a class="nav-link px-2 text-white" href="{% url 'lecturer_enrolment_list' %}">Lecturer
+                            {% if user == 'lecturer' %}
+                                <a class="nav-link px-2 text-white" href="{% url 'lecturer_list' %}">Lecturer
                                     Section</a>
                             {% else %}
                                 <a class="nav-link disabled" href="#">Lecturer Section</a>
                             {% endif %}
                         </li>
                         <li class="nav-item">
-                            {% if user|has_group:'student' %}
-                                <a class="nav-link px-2 text-white" href="{% url 'student_enrolment_list' %}">Student Section</a>
+                            {% if user == 'student' %}
+                                <a class="nav-link px-2 text-white" href="{% url 'student_list' %}">Student Section</a>
                             {% endif %}
                     </ul>
                 {% endif %}
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-                    <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..."
-                           aria-label="Search">
-                </form>
 
                 <div class="text-end">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'logout' %}?next={% url 'home' %}" class="btn btn-outline-light me-2"
-                        >Logout
-                        </a>
+                        <a href="{% url 'logout' %}?next={% url 'index' %}" class="btn btn-outline-light me-2">Logout</a>
                     {% else %}
-{#                        <a href="{% url 'admin:login' %}" class="btn btn-warning">Admin Login</a>#}
                         <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
                     {% endif %}
-                    <a href="{% url 'register' %}" class="btn btn-primary">Sign-up</a>
+
+                        <a href="{% url 'register' %}" class="btn btn-primary">Sign-up</a>
                 </div>
             </div>
         </div>

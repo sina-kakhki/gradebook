@@ -21,10 +21,10 @@ Student Enrollment List
       {% for enrollment in enrollments %}
         <tr>
           <td>{{ enrollment.studentID }}</td>
-          <td>{{ enrollment.classID }}</td>
+          <td>{{ enrollment.enrolled_class }}</td>
           <td>{{ enrollment.grade }}</td>
-          <td>{{ enrollment.enrolTime }}</td>
-          <td>{{ enrollment.gradeTime }}</td>
+          <td>{{ enrollment.enrollment_date }}</td>
+          <td>{{ enrollment.grade_date }}</td>
           <td>
             <a href="{% url 'edit_enrollment' enrollment.id %}" class="btn btn-primary">Edit</a>
             <a href="{% url 'delete_enrollment' enrollment.id %}" class="btn btn-danger">Delete</a>

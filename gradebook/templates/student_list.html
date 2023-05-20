@@ -1,4 +1,6 @@
 <!-- Display the list of students -->
+{% extends 'base.html' %}
+
 <ul>
   {% for student in students %}
     <li>{{ student.studentID }} - {{ student.firstName }} {{ student.lastName }}</li>

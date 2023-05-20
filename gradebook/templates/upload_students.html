@@ -1,4 +1,5 @@
 <!-- HTML form for uploading students from an Excel file -->
+{% extends 'base.html' %}
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <!-- Input field for file upload -->
