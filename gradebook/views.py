@@ -232,10 +232,9 @@ def student_detail(request, pk):
 @login_required
 def student_grades(request):
     student_id = request.GET.get('id')
-    student_name = request.GET.get('name')
 
-    enrollment = get_object_or_404(StudentEnrollment, student__id=student_id, student__name=student_name)
-    grades = enrollment.grade.all()
+    enrollment = get_object_or_404(StudentEnrollment, studentID__id=student_id)
+    grades = enrollment.grade
 
     return render(request, 'student_grade.html', {'enrollment': enrollment, 'grades': grades})
 
