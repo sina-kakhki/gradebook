@@ -8,3 +8,5 @@ To run the app after cloning the repo, follow the steps below:
 4. After registering some users by using register page on the app, go to "http://127.0.0.1:8000/admin/" and login as the superuser that you have created
 5. Create two usergroups and name them as "lecturer" and "student", assign the users that you have created to any of these groups
 6. Login using any of these users, and you'll see specific functions for each user depending on their groups
+
+Please note that if you login as a user without groups you won't see any options.
